@@ -46,7 +46,7 @@ func resizeImage(src image.Image, n int) image.Image {
 	return dst
 }
 
-func image2ycbcr(src image.Image) (yCbCrs []color.YCbCr) {
+func image2YCbCrs(src image.Image) (yCbCrs []color.YCbCr) {
 	srcBounds := src.Bounds()
 	for i := 0; i < srcBounds.Max.Y; i++ {
 		for j := 0; j < srcBounds.Max.X; j++ {
@@ -86,7 +86,7 @@ func Detect(src image.Image) bool {
 
 	dst := resizeImage(src, denominator)
 
-	yCbCrs := image2ycbcr(dst)
+	yCbCrs := image2YCbCrs(dst)
 	sumTotalNude := countNude(yCbCrs)
 
 	rating := float32(sumTotalNude) / float32(len(yCbCrs))
