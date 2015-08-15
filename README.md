@@ -2,7 +2,7 @@
 Nudity Detection
 
 ```
-go get github.com/gotokatsuya/go-nudely/nudely
+go get github.com/gotokatsuya/go-nudely/cmd/nudely
 ```
 
 ## How to use it
@@ -23,7 +23,7 @@ detect := nudely.Detect(src)
 
 ## Execution
 ```
-go run main.go -path="test.jpg"
+nudely -path="test.jpg"
 ```
 
 ### Result
