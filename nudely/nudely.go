@@ -46,43 +46,29 @@ func resizeImage(src image.Image, n int) image.Image {
 	return dst
 }
 
-func color2rgb(c color.Color) (r, g, b, a uint8) {
-	r16, g16, b16, a16 := c.RGBA()
-	return uint8(r16 >> 8), uint8(g16 >> 8), uint8(b16 >> 8), uint8(a16 >> 8)
-}
-
-// Ycbcr ...
-type Ycbcr struct {
-	y  float32
-	cb float32
-	cr float32
-}
-
-func rgb2ycbcr(r, g, b uint8) Ycbcr {
-	fr := float32(r)
-	fg := float32(g)
-	fb := float32(b)
-	return Ycbcr{16 + ((65.738*fr + 129.057*fg + 25.064*fb) / 256),
-		128 + ((-37.945*fr - 74.494*fg + 112.439*fb) / 256),
-		128 + ((112.439*fr - 94.154*fg - 18.285*fb) / 256)}
-}
-
-func image2ycbcr(src image.Image) (ycbcrs []Ycbcr) {
+func image2ycbcr(src image.Image) (yCbCrs []color.YCbCr) {
 	srcBounds := src.Bounds()
 	for i := 0; i < srcBounds.Max.Y; i++ {
 		for j := 0; j < srcBounds.Max.X; j++ {
-			r, g, b, _ := color2rgb(src.At(j, i))
-			ycbcr := rgb2ycbcr(r, g, b)
-			ycbcrs = append(ycbcrs, ycbcr)
+			r, g, b, _ := src.At(j, i).RGBA()
+			y, u, v := color.RGBToYCbCr(uint8(r>>8), uint8(g>>8), uint8(b>>8))
+			yCbCrs = append(yCbCrs, color.YCbCr{y, u, v})
 		}
 	}
-	return ycbcrs
+	return yCbCrs
 }
 
-func countNude(ycbcrs []Ycbcr) (counter int) {
-	for i := 0; i < len(ycbcrs); i++ {
-		if 80 <= ycbcrs[i].cb && ycbcrs[i].cb <= 120 {
-			if 133 <= ycbcrs[i].cr && ycbcrs[i].cr <= 173 {
+const (
+	nudelyMinCb = 80
+	nudelyMaxCb = 120
+	nudelyMinCr = 133
+	nudelyMaxCr = 173
+)
+
+func countNude(yCbCrs []color.YCbCr) (counter int) {
+	for i := 0; i < len(yCbCrs); i++ {
+		if nudelyMinCb <= yCbCrs[i].Cb && yCbCrs[i].Cb <= nudelyMaxCb {
+			if nudelyMinCr <= yCbCrs[i].Cr && yCbCrs[i].Cr <= nudelyMaxCr {
 				counter++
 			}
 		}
@@ -100,10 +86,10 @@ func Detect(src image.Image) bool {
 
 	dst := resizeImage(src, denominator)
 
-	ycbcrs := image2ycbcr(dst)
-	sumTotalNude := countNude(ycbcrs)
+	yCbCrs := image2ycbcr(dst)
+	sumTotalNude := countNude(yCbCrs)
 
-	rating := float32(sumTotalNude) / float32(len(ycbcrs))
+	rating := float32(sumTotalNude) / float32(len(yCbCrs))
 	fmt.Println(fmt.Sprintf("Rating : %f", rating))
 	if rating > threshHold {
 		fmt.Println("I think this is nude.")
