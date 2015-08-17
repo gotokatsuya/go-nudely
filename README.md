@@ -8,18 +8,17 @@ go get github.com/gotokatsuya/go-nudely/cmd/nudely
 ## How to use it
 
 ```go
-var src image.Image
-if src = nudely.DecodeImageByPath(path); src == nil {
-	return
-}
+// img is image.Image, err is error
+img, err := nudely.DecodeImageByPath(path)
 
 // Can read file
-// if src = nudely.DecodeImageByFile(file); src == nil {
-//   return
-// }
+// img, err := nudely.DecodeImageByFile(file)
 
-// detected is bool
-detected := nudely.Detect(src)
+// detected is bool, rating is flaot32
+detected, rating := nudely.Detect(img)
+
+// If you do not want to know rating
+// detected, _ := nudely.Detect(img)
 ```
 
 ## Execution
@@ -34,6 +33,8 @@ When nudely could detect, print
 Rating : 0.547356
 I think this is nude.
 ```
+Nudely think this is nude when rating is bigger than 0.5 value.  
+
 When nudely could not detect, print
 ```
 Rating : 0.000013
