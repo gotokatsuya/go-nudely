@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"image"
 
 	"github.com/gotokatsuya/go-nudely/nudely"
 )
@@ -20,9 +19,18 @@ func main() {
 		return
 	}
 
-	var src image.Image
-	if src = nudely.DecodeImageByPath(*path); src == nil {
+	img, err := nudely.DecodeImageByPath(*path)
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
-	nudely.Detect(src)
+
+	detected, rating := nudely.Detect(img)
+	fmt.Println(fmt.Sprintf("Rating : %f", rating))
+	if detected {
+		fmt.Println("I think this is nude.")
+		return
+	}
+
+	fmt.Println("No nude.")
 }

@@ -1,7 +1,6 @@
 package nudely
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	_ "image/jpeg"
@@ -13,31 +12,29 @@ import (
 )
 
 // DecodeImageByPath ...
-func DecodeImageByPath(path string) image.Image {
+func DecodeImageByPath(path string) (image.Image, error) {
 	file, err := os.Open(path)
 	defer file.Close()
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, err
 	}
 	src, _, err := image.Decode(file)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, err
 	}
-	return src
+	return src, nil
 }
 
 // DecodeImageByFile ...
-func DecodeImageByFile(reader io.Reader) image.Image {
+func DecodeImageByFile(reader io.Reader) (image.Image, error) {
 	src, _, err := image.Decode(reader)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, err
 	}
-	return src
+	return src, nil
 }
 
+// TODO Too min images should not resized
 func resizeImage(src image.Image, n int) image.Image {
 	srcBounds := src.Bounds()
 	gi := gift.New(gift.Resize(srcBounds.Max.Y/n, srcBounds.Max.Y/n, gift.LanczosResampling))
@@ -82,7 +79,7 @@ const (
 )
 
 // Detect ...
-func Detect(src image.Image) bool {
+func Detect(src image.Image) (bool, float32) {
 
 	dst := resizeImage(src, denominator)
 
@@ -90,12 +87,9 @@ func Detect(src image.Image) bool {
 	sumTotalNude := countNude(yCbCrs)
 
 	rating := float32(sumTotalNude) / float32(len(yCbCrs))
-	fmt.Println(fmt.Sprintf("Rating : %f", rating))
 	if rating > threshHold {
-		fmt.Println("I think this is nude.")
-		return true
+		return true, rating
 	}
 
-	fmt.Println("No nude.")
-	return false
+	return false, rating
 }
