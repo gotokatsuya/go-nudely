@@ -18,7 +18,8 @@ if src = nudely.DecodeImageByPath(path); src == nil {
 //   return
 // }
 
-detect := nudely.Detect(src)
+// detected is bool
+detected := nudely.Detect(src)
 ```
 
 ## Execution
@@ -28,12 +29,12 @@ nudely -path="test.jpg"
 
 ### Result
 
-It could detect
+When nudely could detect, print
 ```
 Rating : 0.547356
 I think this is nude.
 ```
-It could not detect
+When nudely could not detect, print
 ```
 Rating : 0.000013
 No nude.
