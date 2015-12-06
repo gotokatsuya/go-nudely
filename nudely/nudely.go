@@ -48,8 +48,8 @@ func image2YCbCrs(src image.Image) (yCbCrs []color.YCbCr) {
 	for i := 0; i < srcBounds.Max.Y; i++ {
 		for j := 0; j < srcBounds.Max.X; j++ {
 			r, g, b, _ := src.At(j, i).RGBA()
-			y, u, v := color.RGBToYCbCr(uint8(r>>8), uint8(g>>8), uint8(b>>8))
-			yCbCrs = append(yCbCrs, color.YCbCr{y, u, v})
+			y, cb, cr := color.RGBToYCbCr(uint8(r>>8), uint8(g>>8), uint8(b>>8))
+			yCbCrs = append(yCbCrs, color.YCbCr{y, cb, cr})
 		}
 	}
 	return yCbCrs
